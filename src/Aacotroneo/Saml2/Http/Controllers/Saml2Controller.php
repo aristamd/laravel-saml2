@@ -6,7 +6,7 @@ use Aacotroneo\Saml2\Events\Saml2LoginEvent;
 use Aacotroneo\Saml2\Saml2Auth;
 use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;
-use HL7;
+use HL7, Auth;
 use App\Models\User;
 use App\Exceptions\HL7\InvalidMessageHL7Exception;
 use App\Exceptions\AccessExceptions\PermissionDeniedException;
@@ -215,6 +215,7 @@ class Saml2Controller extends Controller
             if( !empty($message) )
             {
                 $appUser = $this->getUserFromRequest( $user );
+                Auth::onceUsingId($appUser->id);
                 $request = $this->createRequest( $message, $appUser );
                 $requestQueryParams = $this->getUrlParamString( $request );
             }
