@@ -218,8 +218,6 @@ class Saml2Controller extends Controller
                 $request = $this->createRequest( $message, $appUser );
                 $requestQueryParams = $this->getUrlParamString( $request );
             }
-            print_r($redirectUrl . $requestQueryParams);
-            exit();
             return redirect( $redirectUrl . $requestQueryParams );
         }
         catch(Exception $e)
@@ -232,16 +230,12 @@ class Saml2Controller extends Controller
         {
             logger()->error('Saml2 error_detail', ['error' => $e->getMessage()]);
             session()->flash('saml2_error_detail', [$e->getMessage()]);
-            print_r($redirectUrl . $requestQueryParams);
-            exit();
             return redirect(config('saml2_settings.errorRoute'));
         }
         catch( PermissionDeniedException $e )
         {
             logger()->error('Saml2 error_detail', ['error' => $e->getMessage()]);
             session()->flash('saml2_error_detail', [$e->getMessage()]);
-            print_r($redirectUrl . $requestQueryParams);
-            exit();
             return redirect(config('saml2_settings.errorRoute'));
         }
     }
