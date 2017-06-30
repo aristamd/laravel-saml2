@@ -227,6 +227,12 @@ class Saml2Controller extends Controller
             session()->flash('saml2_error_detail', [$e->getMessage()]);
             return redirect(config('saml2_settings.errorRoute'));
         }
+        catch( InvalidHL7SegmentException $e )
+        {
+            logger()->error('Saml2 error_detail', ['error' => $e->getMessage()]);
+            session()->flash('saml2_error_detail', [$e->getMessage()]);
+            return redirect(config('saml2_settings.errorRoute'));
+        }
         catch( InvalidMessageHL7Exception $e )
         {
             logger()->error('Saml2 error_detail', ['error' => $e->getMessage()]);
