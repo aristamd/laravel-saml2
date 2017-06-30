@@ -8,7 +8,7 @@ use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;
 use HL7, Auth;
 use App\Models\User;
-use App\Exceptions\HL7\InvalidMessageHL7Exception;
+use App\Exceptions\HL7\{InvalidMessageHL7Exception,InvalidHL7SegmentException};
 use App\Exceptions\AccessExceptions\PermissionDeniedException;
 
 
