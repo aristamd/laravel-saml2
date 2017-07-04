@@ -55,7 +55,7 @@ class Saml2Controller extends Controller
             return redirect(config('saml2_settings.errorRoute'));
         }
 
-        $user = $this->saml2Auth->getSaml2User();
+        $user = $this->getUser();
         event(new Saml2LoginEvent($user));
 
         $redirectUrl = $user->getIntendedUrl();
@@ -257,5 +257,36 @@ class Saml2Controller extends Controller
             session()->flash('saml2_error_detail', [$e->getMessage()]);
             return redirect(config('saml2_settings.errorRoute'));
         }
+    }
+
+    /**
+     * Gets Saml2 user from request
+     *
+     * @return  Saml2User
+     */
+    private function getUser()
+    {
+        try
+        {
+            return $this->saml2Auth->getSaml2User();
+        }
+        catch(Exception $e)
+        {
+            logger()->error('Saml2 error_detail', ['error' => $e->getMessage()]);
+            session()->flash('saml2_error_detail', [$e->getMessage()]);
+            return redirect( $this->getErrorRedirectionUrl(config('saml2_settings.errorRoute'), $e->getMessage()) );
+        }
+    }
+
+    /**
+     * Get error redirection url with required params
+     *
+     * @param   String  $url            Redirection url
+     * @param   String  $errorMessage   Error message string
+     * @return  String                  Redirection url
+     */
+    private function getErrorRedirectionUrl( $url, $errorMessage )
+    {
+        return $url . "&error-message=" . base64_encode($errorMessage) . "&base64=true";
     }
 }
