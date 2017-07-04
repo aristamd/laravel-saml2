@@ -8,7 +8,7 @@ use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;
 use HL7, Auth;
 use App\Models\User;
-use App\Exceptions\HL7\{InvalidMessageHL7Exception,InvalidHL7SegmentException};
+use App\Exceptions\HL7\{InvalidMessageHL7Exception,InvalidHL7SegmentException, MissingHL7OrganizationException, MissingHL7SpecialtyException};
 use App\Exceptions\AccessExceptions\PermissionDeniedException;
 
 
@@ -240,6 +240,18 @@ class Saml2Controller extends Controller
             return redirect(config('saml2_settings.errorRoute'));
         }
         catch( PermissionDeniedException $e )
+        {
+            logger()->error('Saml2 error_detail', ['error' => $e->getMessage()]);
+            session()->flash('saml2_error_detail', [$e->getMessage()]);
+            return redirect(config('saml2_settings.errorRoute'));
+        }
+        catch( MissingHL7OrganizationException $e )
+        {
+            logger()->error('Saml2 error_detail', ['error' => $e->getMessage()]);
+            session()->flash('saml2_error_detail', [$e->getMessage()]);
+            return redirect(config('saml2_settings.errorRoute'));
+        }
+        catch( MissingHL7SpecialtyException $e )
         {
             logger()->error('Saml2 error_detail', ['error' => $e->getMessage()]);
             session()->flash('saml2_error_detail', [$e->getMessage()]);
