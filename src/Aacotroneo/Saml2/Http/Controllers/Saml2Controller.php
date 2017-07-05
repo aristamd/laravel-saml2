@@ -221,42 +221,44 @@ class Saml2Controller extends Controller
             }
             return redirect( $redirectUrl . $requestQueryParams );
         }
-        catch(Exception $e)
-        {
-            logger()->error('Saml2 error_detail', ['error' => $e->getMessage()]);
-            session()->flash('saml2_error_detail', [$e->getMessage()]);
-            return redirect(config('saml2_settings.errorRoute'));
-        }
+        // In order to capture the exception is required to explicitly use the Class Name
         catch( InvalidHL7SegmentException $e )
         {
-            logger()->error('Saml2 error_detail', ['error' => $e->getMessage()]);
-            session()->flash('saml2_error_detail', [$e->getMessage()]);
-            return redirect(config('saml2_settings.errorRoute'));
+            return $this->processError( $e->getMessage() );
         }
         catch( InvalidMessageHL7Exception $e )
         {
-            logger()->error('Saml2 error_detail', ['error' => $e->getMessage()]);
-            session()->flash('saml2_error_detail', [$e->getMessage()]);
-            return redirect(config('saml2_settings.errorRoute'));
+            return $this->processError( $e->getMessage() );
         }
         catch( PermissionDeniedException $e )
         {
-            logger()->error('Saml2 error_detail', ['error' => $e->getMessage()]);
-            session()->flash('saml2_error_detail', [$e->getMessage()]);
-            return redirect(config('saml2_settings.errorRoute'));
+            return $this->processError( $e->getMessage() );
         }
         catch( MissingHL7OrganizationException $e )
         {
-            logger()->error('Saml2 error_detail', ['error' => $e->getMessage()]);
-            session()->flash('saml2_error_detail', [$e->getMessage()]);
-            return redirect(config('saml2_settings.errorRoute'));
+            return $this->processError( $e->getMessage() );
         }
         catch( MissingHL7SpecialtyException $e )
         {
-            logger()->error('Saml2 error_detail', ['error' => $e->getMessage()]);
-            session()->flash('saml2_error_detail', [$e->getMessage()]);
-            return redirect(config('saml2_settings.errorRoute'));
+            return $this->processError( $e->getMessage() );
         }
+        catch(Exception $e)
+        {
+            return $this->processError( $e->getMessage() );
+        }
+    }
+
+    /**
+     * Process error, add logs and redirect to the error url
+     *
+     * @params  String      $errorMessage
+     * @return  Redirect
+     */
+    private function processError( $errorMessage )
+    {
+        logger()->error('Saml2 error_detail', ['error' => $errorMessage]);
+        session()->flash('saml2_error_detail', [$errorMessage]);
+        return redirect( $this->getErrorRedirectionUrl(config('saml2_settings.errorRoute'), $errorMessage) );
     }
 
     /**
@@ -287,6 +289,6 @@ class Saml2Controller extends Controller
      */
     private function getErrorRedirectionUrl( $url, $errorMessage )
     {
-        return $url . "&error-message=" . base64_encode($errorMessage) . "&base64=true";
+        return $url . $http_build_query( ['error-message'=>$errorMessage,'base64'=>true] );
     }
 }
