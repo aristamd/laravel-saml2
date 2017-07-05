@@ -55,7 +55,7 @@ class Saml2Controller extends Controller
             return redirect(config('saml2_settings.errorRoute'));
         }
 
-        $user = $this->saml2Auth->getSaml2User();
+        $user = $this->getUser();
         event(new Saml2LoginEvent($user));
 
         $redirectUrl = $user->getIntendedUrl();
@@ -221,41 +221,74 @@ class Saml2Controller extends Controller
             }
             return redirect( $redirectUrl . $requestQueryParams );
         }
+        // In order to capture the exception is required to explicitly use the Class Name
+        catch( InvalidHL7SegmentException $e )
+        {
+            return $this->processError( $e->getMessage() );
+        }
+        catch( InvalidMessageHL7Exception $e )
+        {
+            return $this->processError( $e->getMessage() );
+        }
+        catch( PermissionDeniedException $e )
+        {
+            return $this->processError( $e->getMessage() );
+        }
+        catch( MissingHL7OrganizationException $e )
+        {
+            return $this->processError( $e->getMessage() );
+        }
+        catch( MissingHL7SpecialtyException $e )
+        {
+            return $this->processError( $e->getMessage() );
+        }
+        catch(Exception $e)
+        {
+            return $this->processError( $e->getMessage() );
+        }
+    }
+
+    /**
+     * Process error, add logs and redirect to the error url
+     *
+     * @params  String      $errorMessage
+     * @return  Redirect
+     */
+    private function processError( $errorMessage )
+    {
+        logger()->error('Saml2 error_detail', ['error' => $errorMessage]);
+        session()->flash('saml2_error_detail', [$errorMessage]);
+        return redirect( $this->getErrorRedirectionUrl(config('saml2_settings.errorRoute'), $errorMessage) );
+    }
+
+    /**
+     * Gets Saml2 user from request
+     *
+     * @return  Saml2User
+     */
+    private function getUser()
+    {
+        try
+        {
+            return $this->saml2Auth->getSaml2User();
+        }
         catch(Exception $e)
         {
             logger()->error('Saml2 error_detail', ['error' => $e->getMessage()]);
             session()->flash('saml2_error_detail', [$e->getMessage()]);
-            return redirect(config('saml2_settings.errorRoute'));
+            return redirect( $this->getErrorRedirectionUrl(config('saml2_settings.errorRoute'), $e->getMessage()) );
         }
-        catch( InvalidHL7SegmentException $e )
-        {
-            logger()->error('Saml2 error_detail', ['error' => $e->getMessage()]);
-            session()->flash('saml2_error_detail', [$e->getMessage()]);
-            return redirect(config('saml2_settings.errorRoute'));
-        }
-        catch( InvalidMessageHL7Exception $e )
-        {
-            logger()->error('Saml2 error_detail', ['error' => $e->getMessage()]);
-            session()->flash('saml2_error_detail', [$e->getMessage()]);
-            return redirect(config('saml2_settings.errorRoute'));
-        }
-        catch( PermissionDeniedException $e )
-        {
-            logger()->error('Saml2 error_detail', ['error' => $e->getMessage()]);
-            session()->flash('saml2_error_detail', [$e->getMessage()]);
-            return redirect(config('saml2_settings.errorRoute'));
-        }
-        catch( MissingHL7OrganizationException $e )
-        {
-            logger()->error('Saml2 error_detail', ['error' => $e->getMessage()]);
-            session()->flash('saml2_error_detail', [$e->getMessage()]);
-            return redirect(config('saml2_settings.errorRoute'));
-        }
-        catch( MissingHL7SpecialtyException $e )
-        {
-            logger()->error('Saml2 error_detail', ['error' => $e->getMessage()]);
-            session()->flash('saml2_error_detail', [$e->getMessage()]);
-            return redirect(config('saml2_settings.errorRoute'));
-        }
+    }
+
+    /**
+     * Get error redirection url with required params
+     *
+     * @param   String  $url            Redirection url
+     * @param   String  $errorMessage   Error message string
+     * @return  String                  Redirection url
+     */
+    private function getErrorRedirectionUrl( $url, $errorMessage )
+    {
+        return $url . '&' . http_build_query( ['error-message'=>$errorMessage,'base64'=>true] );
     }
 }
