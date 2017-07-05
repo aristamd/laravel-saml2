@@ -289,6 +289,6 @@ class Saml2Controller extends Controller
      */
     private function getErrorRedirectionUrl( $url, $errorMessage )
     {
-        return $url . $http_build_query( ['error-message'=>$errorMessage,'base64'=>true] );
+        return $url . http_build_query( ['error-message'=>$errorMessage,'base64'=>true] );
     }
 }
