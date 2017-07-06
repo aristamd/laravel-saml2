@@ -8,7 +8,8 @@ use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;
 use HL7, Auth;
 use App\Models\User;
-use App\Exceptions\HL7\{InvalidMessageHL7Exception,InvalidHL7SegmentException, MissingHL7OrganizationException, MissingHL7SpecialtyException};
+use App\Exceptions\HL7\{InvalidMessageHL7Exception,InvalidHL7SegmentException, MissingHL7OrganizationException,
+    MissingHL7SpecialtyException, MissingHL7ChiefComplaintException, MissingHL7WorkupChecklistException};
 use App\Exceptions\AccessExceptions\PermissionDeniedException;
 
 
@@ -188,7 +189,7 @@ class Saml2Controller extends Controller
         }
         // Getting the patient data from the HL7 message
         $patient = HL7::transformPatient( $user->organization->id, $message );
-        $requestObject = HL7::transformRequest( $user->id, $user->organization->id, $message );
+        $requestObject = HL7::transformRequest( $user->id, $message );
 
         $patient->save();
 
@@ -239,6 +240,14 @@ class Saml2Controller extends Controller
             return $this->processError( $e->getMessage() );
         }
         catch( MissingHL7SpecialtyException $e )
+        {
+            return $this->processError( $e->getMessage() );
+        }
+        catch( MissingHL7ChiefComplaintException $e )
+        {
+            return $this->processError( $e->getMessage() );
+        }
+        catch( MissingHL7WorkupChecklistException $e )
         {
             return $this->processError( $e->getMessage() );
         }
