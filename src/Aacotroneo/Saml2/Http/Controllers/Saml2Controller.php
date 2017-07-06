@@ -189,7 +189,7 @@ class Saml2Controller extends Controller
         }
         // Getting the patient data from the HL7 message
         $patient = HL7::transformPatient( $user->organization->id, $message );
-        $requestObject = HL7::transformRequest( $user->id, $user->organization->id, $message );
+        $requestObject = HL7::transformRequest( $user->id, $message );
 
         $patient->save();
 
