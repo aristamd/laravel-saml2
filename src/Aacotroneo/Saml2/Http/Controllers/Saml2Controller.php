@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use HL7, Auth;
 use App\Models\User;
 use App\Exceptions\HL7\{InvalidMessageHL7Exception,InvalidHL7SegmentException, MissingHL7OrganizationException,
-    MissingHL7SpecialtyException, MissingHL7ChiefComplaintException};
+    MissingHL7SpecialtyException, MissingHL7ChiefComplaintException, MissingHL7WorkupChecklistException};
 use App\Exceptions\AccessExceptions\PermissionDeniedException;
 
 
@@ -244,6 +244,10 @@ class Saml2Controller extends Controller
             return $this->processError( $e->getMessage() );
         }
         catch( MissingHL7ChiefComplaintException $e )
+        {
+            return $this->processError( $e->getMessage() );
+        }
+        catch( MissingHL7WorkupChecklistException $e )
         {
             return $this->processError( $e->getMessage() );
         }
