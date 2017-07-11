@@ -197,7 +197,7 @@ class Saml2Controller extends Controller
         }
         else
         {
-            //$patient = HL7::transformPatient( $user->organization->id, $message );
+            $patient = HL7::transformPatient( $user->organization->id, $message );
         }
 
         $patient->save();
