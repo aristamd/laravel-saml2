@@ -187,9 +187,18 @@ class Saml2Controller extends Controller
             $this->message = "Internal Error. Please provide the HL7 v.2.3 REF message.";
             return $this->buildResponse( );*/
         }
+
+        $requestObject = HL7::transformRequest( $user->id, $user->organization->id, $message );
+
         // Getting the patient data from the HL7 message
-        $patient = HL7::transformPatient( $user->organization->id, $message );
-        $requestObject = HL7::transformRequest( $user->id, $message );
+        if(!empty($requestObject->patient))
+        {
+            $patient =  $requestObject->patient;
+        }
+        else
+        {
+            //$patient = HL7::transformPatient( $user->organization->id, $message );
+        }
 
         $patient->save();
 
