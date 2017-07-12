@@ -172,46 +172,6 @@ class Saml2Controller extends Controller
         return "&record_type=$recordType&record_id=$request->id";
     }
 
-    /**
-     * Creates a referral or an eConsult from a HL7 message
-     *
-     * @param   String  $message    HL7 message as string
-     * @param   User    $user       Authenticated user
-     * @return  Integer             Request id
-     */
-    private function createRequest( $message, $user )
-    {
-        if ( empty($message) )
-        {
-            /*$this->responseCode( 500 );
-            $this->message = "Internal Error. Please provide the HL7 v.2.3 REF message.";
-            return $this->buildResponse( );*/
-        }
-
-        $requestObject = HL7::transformRequest( $user->id, $message );
-
-        // Getting the patient data from the HL7 message
-        if(!empty($requestObject->patient))
-        {
-            $patient =  $requestObject->patient;
-            unset($requestObject->patient);
-        }
-        else
-        {
-            $patient = HL7::transformPatient( $user->organization->id, $message );
-        }
-
-        $patient->save();
-
-        $requestObject->patient_id = $patient->id;
-        $requestObject->patient_version = $patient->version;
-
-        $requestObject->save();
-
-        HL7::associateLabs($requestObject);
-
-        return $requestObject;
-    }
 
     /**
      * Checks if there is an HL7 message, process the message and returns the query parameter string
@@ -229,7 +189,7 @@ class Saml2Controller extends Controller
             {
                 $appUser = $this->getUserFromRequest( $user );
                 Auth::onceUsingId($appUser->id);
-                $request = $this->createRequest( $message, $appUser );
+                $request = HL7::createRequest( $message, $appUser );
                 $requestQueryParams = $this->getUrlParamString( $request );
             }
             return redirect( $redirectUrl . $requestQueryParams );
