@@ -108,7 +108,7 @@ class Saml2Controller extends Controller
      * Gets the HL7 message from the user request
      *
      * @param   Saml2User     $user
-     * @return  String       
+     * @return  String
      */
     private function getHL7MessageFromRequest( $user )
     {
@@ -194,6 +194,7 @@ class Saml2Controller extends Controller
         if(!empty($requestObject->patient))
         {
             $patient =  $requestObject->patient;
+            unset($requestObject->patient);
         }
         else
         {
