@@ -188,7 +188,7 @@ class Saml2Controller extends Controller
             return $this->buildResponse( );*/
         }
 
-        $requestObject = HL7::transformRequest( $user->id, $user->organization->id, $message );
+        $requestObject = HL7::transformRequest( $user->id, $message );
 
         // Getting the patient data from the HL7 message
         if(!empty($requestObject->patient))
