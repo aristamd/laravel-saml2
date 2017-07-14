@@ -208,6 +208,8 @@ class Saml2Controller extends Controller
 
         $requestObject->save();
 
+        HL7::associateLabs($requestObject);
+
         return $requestObject;
     }
 
