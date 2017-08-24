@@ -4,6 +4,7 @@ namespace Aacotroneo\Saml2\Http\Controllers;
 
 use Aacotroneo\Saml2\Events\Saml2LoginEvent;
 use Aacotroneo\Saml2\Saml2Auth;
+use Core\Http\Middleware\Saml2Base;
 use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;
 use HL7, Auth;
@@ -130,14 +131,14 @@ class Saml2Controller extends Controller
      */
     private function getUserFromRequest( $samlUser )
     {
-        $userId = $samlUser->getAttributes()['UserId'][0];
+        $value = $samlUser->getAttributes()[Saml2Base::USER_SAML_FIELD][0];
         $issuer = \Config::get('saml2_settings.idp.entityId');
 
         // Find a node with the attribute Name set as Email, after find the text node that contains the email
-        $user = UserRepository::findByExternalIdentifier( $issuer, $userId );
+        $user = UserRepository::findByExternalIdentifier( $issuer, $value );
         if ( is_null($user) )
         {
-            throw new Saml2UserNotPresentException( "Saml request with user id {$userId} does not have an user on AristaMD" );
+            throw new Saml2UserNotPresentException( "Saml request with value {$value} does not have an user on AristaMD" );
         }
         return $user;
     }
