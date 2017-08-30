@@ -4,11 +4,9 @@ namespace Aacotroneo\Saml2\Http\Controllers;
 
 use Aacotroneo\Saml2\Events\Saml2LoginEvent;
 use Aacotroneo\Saml2\Saml2Auth;
-use Core\Http\Middleware\Saml2Base;
 use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;
 use HL7, Auth;
-use App\Services\Repositories\UserRepository;
 use App\Exceptions\HL7\{InvalidMessageHL7Exception,InvalidHL7SegmentException, MissingHL7OrganizationException,
     MissingHL7SpecialtyException, MissingHL7ChiefComplaintException, MissingHL7WorkupChecklistException};
 use App\Exceptions\AccessExceptions\PermissionDeniedException;
@@ -123,25 +121,7 @@ class Saml2Controller extends Controller
         return $attributes['RequestMessage'][0];
     }
 
-    /**
-     * Get the user model using the email on request
-     *
-     * @param   Saml2User   $user
-     * @return  User
-     */
-    private function getUserFromRequest( $samlUser )
-    {
-        $value = $samlUser->getAttributes()[Saml2Base::USER_SAML_FIELD][0];
-        $issuer = \Config::get('saml2_settings.idp.entityId');
 
-        // Find a node with the attribute Name set as Email, after find the text node that contains the email
-        $user = UserRepository::findByExternalIdentifier( $issuer, $value );
-        if ( is_null($user) )
-        {
-            throw new Saml2UserNotPresentException( "Saml request with value {$value} does not have an user on AristaMD" );
-        }
-        return $user;
-    }
 
     /**
      * Get the query params for the request object
@@ -189,7 +169,7 @@ class Saml2Controller extends Controller
             $message = $this->getHL7MessageFromRequest( $user );
             if( !empty($message) )
             {
-                $appUser = $this->getUserFromRequest( $user );
+                $appUser = HL7::getUserFromSamlUser( $user );
                 Auth::onceUsingId($appUser->id);
                 $request = HL7::createRequest( $message, $appUser );
                 $requestQueryParams = $this->getUrlParamString( $request );
