@@ -4,7 +4,6 @@ namespace Aacotroneo\Saml2\Http\Controllers;
 
 use Aacotroneo\Saml2\Events\Saml2LoginEvent;
 use Aacotroneo\Saml2\Saml2Auth;
-use Core\Http\Middleware\Saml2Base;
 use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;
 use HL7, Auth;
@@ -131,7 +130,7 @@ class Saml2Controller extends Controller
      */
     private function getUserFromRequest( $samlUser )
     {
-        $value = $samlUser->getAttributes()[Saml2Base::USER_SAML_FIELD][0];
+        $value = $samlUser->getAttributes()[config('saml2_settings.userField')][0];
         $issuer = \Config::get('saml2_settings.idp.entityId');
 
         // Find a node with the attribute Name set as Email, after find the text node that contains the email
