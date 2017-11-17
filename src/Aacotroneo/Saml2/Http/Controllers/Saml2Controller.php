@@ -142,16 +142,18 @@ class Saml2Controller extends Controller
         {
             case 'App\Models\EConsult':
                 $recordType = 'econsult';
+                $recordStatus = $request->request_identifier ? $request->status : null;
                 break;
             case 'App\Models\Referral':
                 $recordType = 'referral';
+                $recordStatus = $request->request_identifier ? $request->status : null;
                 break;
             default:
                 $recordType = null;
                 break;
         }
 
-        return "&record_type=$recordType&record_id=$request->id";
+        return "&record_type=$recordType&record_id=$request->id&recordStatus=$recordStatus";
     }
 
 
