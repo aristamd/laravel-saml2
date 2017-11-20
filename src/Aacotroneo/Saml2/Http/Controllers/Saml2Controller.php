@@ -151,7 +151,8 @@ class Saml2Controller extends Controller
                 break;
         }
 
-        return "&record_type=$recordType&record_id=$request->id";
+        $recordStatus = $request->request_identifier ? $request->status : null;
+        return "&record_type=$recordType&record_id=$request->id&recordStatus=$recordStatus";
     }
 
 
