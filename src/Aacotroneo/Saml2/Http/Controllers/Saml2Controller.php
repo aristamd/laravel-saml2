@@ -219,7 +219,7 @@ class Saml2Controller extends Controller
      */
     private function processError( $errorMessage, $ecwId )
     {
-        logger()->error('Saml2 error_detail', ['error' => $errorMessage, 'ecw_id' => $ecwId, 'direction' => 'Inbound']);
+        logger()->error('Saml2 error_detail', ['error' => $errorMessage, 'ecw_request_id' => $ecwId, 'direction' => 'Inbound']);
         session()->flash('saml2_error_detail', [$errorMessage]);
         return redirect( $this->getErrorRedirectionUrl(config('saml2_settings.errorRoute'), $errorMessage) );
     }
