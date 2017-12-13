@@ -187,31 +187,31 @@ class Saml2Controller extends Controller
         // In order to capture the exception is required to explicitly use the Class Name
         catch( InvalidHL7SegmentException $e )
         {
-            return $this->processError( $e->getMessage() );
+            return $this->processError( $e->getMessage(), $e->getReferenceId() );
         }
         catch( InvalidMessageHL7Exception $e )
         {
-            return $this->processError( $e->getMessage() );
+            return $this->processError( $e->getMessage(), $e->getReferenceId() );
         }
         catch( PermissionDeniedException $e )
         {
-            return $this->processError( $e->getMessage() );
+            return $this->processError( $e->getMessage(), $e->getReferenceId() );
         }
         catch( MissingHL7OrganizationException $e )
         {
-            return $this->processError( $e->getMessage() );
+            return $this->processError( $e->getMessage(), $e->getReferenceId() );
         }
         catch( MissingHL7SpecialtyException $e )
         {
-            return $this->processError( $e->getMessage() );
+            return $this->processError( $e->getMessage(), $e->getReferenceId() );
         }
         catch( MissingHL7ChiefComplaintException $e )
         {
-            return $this->processError( $e->getMessage() );
+            return $this->processError( $e->getMessage(), $e->getReferenceId() );
         }
         catch( MissingHL7WorkupChecklistException $e )
         {
-            return $this->processError( $e->getMessage() );
+            return $this->processError( $e->getMessage(), $e->getReferenceId() );
         }
         catch( NoPermissionHL7Exception $e )
         {
@@ -219,7 +219,7 @@ class Saml2Controller extends Controller
         }
         catch(Exception $e)
         {
-            return $this->processError( $e->getMessage() );
+            return $this->processError( $e->getMessage(), $e->getReferenceId() );
         }
     }
 
@@ -229,9 +229,9 @@ class Saml2Controller extends Controller
      * @params  String      $errorMessage
      * @return  Redirect
      */
-    private function processError( $errorMessage )
+    private function processError( $errorMessage, $ecwId )
     {
-        logger()->error('Saml2 error_detail', ['error' => $errorMessage]);
+        logger()->error('Saml2 error_detail', ['error' => $errorMessage, 'ecw_request_id' => $ecwId, 'direction' => 'Inbound']);
         session()->flash('saml2_error_detail', [$errorMessage]);
         return redirect( $this->getErrorRedirectionUrl(config('saml2_settings.errorRoute'), $errorMessage) );
     }
@@ -264,6 +264,7 @@ class Saml2Controller extends Controller
      */
     private function getErrorRedirectionUrl( $url, $errorMessage )
     {
+
         $errors = base64_encode( json_encode(explode(PHP_EOL, $errorMessage)) );
         return $url . '&' . http_build_query( ['error-message'=>$errors,'base64'=>true] );
     }
