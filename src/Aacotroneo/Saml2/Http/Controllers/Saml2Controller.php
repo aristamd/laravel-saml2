@@ -17,6 +17,7 @@ use App\Exceptions\HL7\{
     NoPermissionHL7Exception
 };
 use App\Exceptions\AccessExceptions\PermissionDeniedException;
+use App\Exceptions\HealthLanguage\HealthLanguageRequestError;
 
 
 class Saml2Controller extends Controller
@@ -216,6 +217,10 @@ class Saml2Controller extends Controller
         catch( NoPermissionHL7Exception $e )
         {
             return $this->processError( $e->getMessage() );
+        }
+        catch( HealthLanguageRequestError $e )
+        {
+            return $this->processError( $e->getMessage(), 'N/A' );
         }
         catch(Exception $e)
         {
