@@ -14,7 +14,8 @@ use App\Exceptions\HL7\{
     MissingHL7SpecialtyException,
     MissingHL7ChiefComplaintException,
     MissingHL7WorkupChecklistException,
-    NoPermissionHL7Exception
+    NoPermissionHL7Exception,
+    UserSiteMismatchHL7Exception
 };
 use App\Exceptions\AccessExceptions\PermissionDeniedException;
 use App\Exceptions\HealthLanguage\HealthLanguageRequestError;
@@ -160,7 +161,7 @@ class Saml2Controller extends Controller
         }
 
         $recordStatus = $request->request_identifier ? $request->status : null;
-        return "&record_type=$recordType&record_id=$request->id&recordStatus=$recordStatus";
+        return "&record_type=$recordType&record_id=$request->id&recordStatus=$recordStatus&recordSite=$request->organization_id";
     }
 
 
@@ -219,6 +220,10 @@ class Saml2Controller extends Controller
             return $this->processError( $e->getMessage() );
         }
         catch( HealthLanguageRequestError $e )
+        {
+            return $this->processError( $e->getMessage(), 'N/A' );
+        }
+        catch (UserSiteMismatchHL7Exception $e)
         {
             return $this->processError( $e->getMessage(), 'N/A' );
         }
