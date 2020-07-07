@@ -4,9 +4,11 @@ namespace Aacotroneo\Saml2\Http\Controllers;
 
 use Aacotroneo\Saml2\Events\Saml2LoginEvent;
 use Aacotroneo\Saml2\Saml2Auth;
+use Illuminate\Contracts\Auth\Factory as AuthFactory;
 use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;
 use HL7, Auth;
+use App\Http\Middleware\ScopeToTenant;
 use App\Exceptions\HL7\{
     InvalidMessageHL7Exception,
     InvalidHL7SegmentException,
@@ -181,6 +183,11 @@ class Saml2Controller extends Controller
             {
                 $appUser = HL7::getUserFromSamlUser( $user );
                 Auth::onceUsingId($appUser->id);
+
+                // scope the user
+                $middleware = new ScopeToTenant(app(AuthFactory::class));
+                $middleware->handle(request(), function() { });
+
                 $request = HL7::createRequest( $message, $appUser );
                 $requestQueryParams = $this->getUrlParamString( $request );
             }
