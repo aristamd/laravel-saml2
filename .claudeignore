@@ -1,0 +1,24 @@
+# PHP
+vendor/
+var/
+cache/
+storage/framework/cache/
+storage/framework/sessions/
+storage/framework/views/
+storage/logs/
+bootstrap/cache/
+.php_cs.cache
+.phpunit.result.cache
+*.phar
+public/build/
+public/hot/
+
+# Secrets & environment
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+secrets/
